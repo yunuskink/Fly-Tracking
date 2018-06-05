@@ -1,0 +1,72 @@
+Below are instructions for running the FlyTrack code to both run experiments and conduct image analysis developed by Yunus Kinkhabwala in the Itai Cohen group.
+
+All data collection and analysis are performed in MatLab.
+
+_______________________________________________RUNNING EXPERIMENTS___________________________________________________________________________________
+ROI:
+To collect data, one must first get the correct ROI for the camera. This can greatly reduce the amount of data collected and increase framerates. For a certain chamber, this should ideally be done only once and subsequent experiments can all be aligned with this same setup to avoid tedious alignments later in processing.
+1) Run "getROI_Mask". A live feed of both cameras will be shown. Setup an empty fly chamber with the camera fixed in the desired location. Once aligned, fix the cameras so that they will not move. You also choose here the settings for the exposure time, in microseconds for the cameras. Keep in mind the desired framerate so that the camera can actually run at the correct framerate. Once cameras are aligned and focused and the aperture set to the best setting, click "Done".
+2) You will now be promted to choose the rectangular ROI for each camera. Simply draw a tight box around the chamber and the extremities of this box will be used to select how much of the cameras' images will be requested from the camera. Once the box is drawn, double click on the box to select it.
+3) You will now see a very similar image which should be the same image as in step 2, but with only that ROI selected. You can now draw what will be the mask used for later analysis. Trace the outline of your chamber. For square chambers, it is best to draw a good square, but for more complicated shapes, it is best to draw a rough mask, making sure not to draw your mask on any of the chamber accessible to flies, and move on to step 4. Once finished, again double-click to choose that region.
+4) You will now see again the same image, but now there will be a slider. By adjusting the slider, you can set a threshold for what is consider the edge of the chamber and use this to find the mask which will be updated live. Once finished, clikc "Done".
+5) Now you will repeat steps 2-4 for the GFP camera. If not using GFP flies, simply draw squares and click done.
+NOTE: The ROI is essential to data collection, but in theory the mask can be modified later since it is used for the data analysis. It is recommended to choose an accurate mask to begin with so that all future experiments can be aligned with this mask so that analysis between different experiments will be much easier. Otherwise, comparing two experiments will require finding affine transformations between the masks to find equivalent locations and that's a pain in the butt.
+NOTE 2: Choosing an accurate mask is very important to later analysis, but don't spend too much time figuring it out since it can be corrected later.
+
+RECORDING IMAGES:
+Now we can record the image arrays of the flies. We use a setup modified from the FBI (Fluorescence Based Imaging) setup described by Ramdya et al. Following are the parameters that need to set prior to starting data collection. I still need to add in the power to turn on and off the blue light using a DAC as a controller. For now, the blue light will remain on and act as also an ambient light for flies to see each other.
+
+To speed up data transfer and avoid issues with filesize, videos of flies are saved as uncompressed matlab data files with two objects. "im" is the image array and "time" contains the time element from when the video was first started. The length of each of these elements is defined by "dt" which is usually set to be 60 seconds, though may need to be shorter if the flies are captured at higher resolution or in RGB or 16 bit.
+
+1) Navigate to an new empty folder and run the script "Record_images_FBI_Fluor".
+3) You will be prompted to open the "params" file. This should contain the ROI and bwMask that you defined previously.
+4) Each camera will be started and a live feed of the camera with the bwMask overlaid will be shown. Here you can adjust the position of the chamber so that it matches with the bwMask you already defined. Once aligned press "Done".
+5) Check after at most 2*dt to make sure that the video is being saved. If downloaded to a cloud folder, you can check the recording progress on another computer, but it is not recommended to play with data while the experiment is still being run. Also, another important check is that frames are not being lost in between saved files. Simply check the "time_IR" variable for one segment and make sure the last entry in that is appropriately close to the filename for the next entry.
+
+NOTE: For now only the infrared camera is recording data since the GFP expression has not been figured out yet.
+
+_______________________________________________TRACKING FLIES___________________________________________________________________________________
+Two analyses have proven most effective in tracking flies. DIC is the most accurate and least prone to mislabelling and also tracks the identities of the flies, but it is also much slower and breaks whenever there is a problem such as a fly being lost or some residue be recognized as a fly. This technique is still being developed. PERI is the older version that gives good coarse tracking even when flies form groups and can even track flies in real time thus giving accurate density measurements over hours worth of data without the need for keeping all the images, but is not reliable for tracking identities.
+
+SETTING PARAMS:
+Several parameters need to be set to find the silhouettes of the flies and only flies and this process get the parameters necessary for both analyses. With clean videos and appropriate parameters, this can be very accurate. If you need to still find the mask, run "[bwMask] = Get_Mask_DIC(im)" and then if OK, set the value inside of "params" to the correct value, "params.bwMask = bwMask";
+1) Run "[params] = get_params_DIC_PERI(params_IR,im_IR)" with "params" being the parameters used to record the video with the bwMask, and "im" being any sample image set from the experiment.
+2) A GUI will open up allowing you to set several parameters, though the most important is "t_thresh", a slider that defines a threshhold for what is a fly compared to the background, and "area_min" which sets a minimum area of a fly. This can help remove the detection of specks or schmutz that accumulates after hours of the flies being in the chamber. Adjust these parameters and click update images to see what the program defines as a fly silhouette. The four sample images should update and you can zoom in to check the accuracy. It can be useful to set a high threshhold in order to seperate the fly silhouettes from each other.
+3) Click the "Count Flies" button, which will open a GUI that lets you click on or near each fly. Each click will place a green circle. Left-click on or near each fly to count them and then right-click to finish. The number of left-clicks you do is counted and recorded on the main GUI as the total number of flies.
+3) Once satistfied, click "Done" and the params will be returned to the workspace and the user will also be prompted to choose a place to save these. Ideally, if camera and lighting are not changed, then this params structure can be used for all subsequent experiments.
+
+RUNNING ANALYSIS:
+
+DIC:
+DIC is what I use to refer to using correlations between frames of flies to track a fly. Basically, this works by first labelling each fly very well. DIC will then track the fly from one frame to the next in the nearest region. Eventually, this may require setting some paramteres that discourage the long travel or large rotation of a fly between frames, but with high framerates this has not become necessary yet. 
+1) Navigate to the folder with the image files save. There should be no other files in this folder.
+2) Open up the script "Batch_DIC" and set the following parameters. Also be sure to load the "params" variable into the workspace.
+	max_disp = 1; %distance a fly can travel between frames. For now very low values like "1" are necessary but work.
+	max_rot = 20; %Greatest rotation a fly can perform between frames.
+	d_theta = 10; %Defines the number of rotations to try and should be a factor of max_rot. For example, this will try fitting the fly by rotating it by 		-20,-10,0,10,and 20 degrees. This can substantially slow down performance if a value like "1" is chosen.
+3) Navigate to the folder containing only the data files and run "Batch_DIC" to analyze the full folder of data.
+4) You will be prompted to correct an attempted labelling of the first frame of the data. Look for any connected clusters where 2 or more flies are touching and labelled with the same color, and then draw a ROI around one of those flies. Keep going until the number of flies is equal to the expercted number of flies as shown in the title of one of the plots. Click "Yes" when finished.
+5) After each image set is analyzed, the results are saved in the format of "bw_label_mov" in a results subfolder. These files are much smaller than the raw data.
+
+PERI:
+PERI calculates the average of what a fly looks like. It then tracks the silhouettes of the flies in each frame in a straightforward way. When there are clusters though, then the flies in the groups are separated by finding the best places to fit a protofly in the cluster. For this analysis, "area_max" is very important as it set the threshhold for what is defined as a cluster. This can be problematic in mixed gender experiments where the area of two males, thus a cluster, might be less than the area of a single female, but this analysis still works fairly well. It is relatively fast but not reliable for tracking fly identities.
+1) Navigate to folder of just image data files.
+2) Load the params variable into your workspace.
+3) Run "Fly_PERI(params,t_start,t_end)". If you just wish to analyze all the images, which takes about as long as the recording itself at the longest, then simply set t_start to 0 and t_end to any number larger than the length of your video in seconds, like 1000000000000000000.
+
+_______________________________________________CHECKING TRACKING__________________________________________________________________________________
+To see the results of your tracking algorithm, you can run "animate_bw_mov(bw_label_mov,im,start_ind)" which will 
+
+_______________________________________________ANALYZING RESULTS__________________________________________________________________________________
+The raw output of the DIC method is a movie of the exact same size except now, each pixel is labelled with the identity of the fly and the background is labelled with a zero. The just get locations of centroids, run "[ResMat] = ResMat_bwlabel(bw_label_mov, time)" for each video. Eventually, I'll write something to do this and combine them all into one "ResMat" array.
+
+%%%%%%%%%%%%%%%ResMat%%%%%%%%%%%%%
+ResMat is the structure that contains all the information about the locations of the flies.
+COLUMN 1: Real time
+COLUMN 2: x-position of fly
+COLUMN 3: y-position of fly
+COLUMN 6: Frame number. Useful for debugging. Not always calculated
+COLUMN 7: Unique fly identifier. For DIC analysis, the fly should be accurately tracked the whole video and so the number of unique ID's should equal the number of flies. For PERI analysis, you must run "[ResMat] = track_ResMat(ResMat,maxdisp)" where maxdisp is the furthest a fly can travel between frames. There are additional parameters you can set inside the function. You must have continuous data without breaks for this function to work well.
+
+
+

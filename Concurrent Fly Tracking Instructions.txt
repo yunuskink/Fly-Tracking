@@ -1,0 +1,25 @@
+To run an experiment where identities do not need to be tracked well or where only a single fly is present, follow the instructions below.
+
+GETTING PARAMETERS WITH PRACTICE FLIES:
+STEP 0: FIRST, before you run your experiment, set up a few flies in your chamber and align is just how you like it. You can use the camera software Pylon Viewer to get it just right. I also recommend marking the position of this chamber on the glass.
+STEP 1: Run "get_params_t"
+STEP 2: Draw an ROI for the section of the video you wish to capture. This is a square around the chamber with a little extra room, at least a few pixels, on the outside.
+STEP 3: Enter a known distance from the chamber (for example the length of the chamber might be 4 cm).
+STEP 4: Draw a line corresponding to that distance on the image. Repeat as necessary. This will set the scale factor from pixels to centimeters. You'll be asked to do this 3 times.
+STEP 5: Draw a mask of the chamber. If you cannot draw a good enough mask because it is a strange shape for example, then draw a rough mask and say "No" on the dialog and use a threshholding to choose the mask of the chamber.
+STEP 6: Set the threshholding parameter. Drag the slider until fly bodies are found but no wings. 
+STEP 7: Set the paramters for the maximum and minimum size of a fly. A histogram of fly sizes within your boundaries will be shown on the bottom right. If a fly is not in your boundaries it will not be labelled. Click Done when finished.
+STEP 8: Click on all the flies in order to count the total number of flies. Right click when finished.
+STEP 9: When asked to find new protoflies, choose yes for the program to find the "protofly" which is an average of all the flies together. If you have already done this in the past and have a good protofly, you can choose to load that file.
+STEP 10: Choose where to save the params.
+
+READY FOR EXPERIMENTATION:
+STEP 0: Load your flies into the chamber. Navigate to the folder where you plan to save the results.
+STEP 1: Run "[ResMat] = Collect_Data_behavior()"
+STEP 2: Open the file that you made in step 10 above.
+STEP 3: First, you get a chance to align the experimental setup with the mask with a live feed with tracking of the flies. Unfortunately, when very poorly aligned, the live feed from the video is very slow. Once aligned, click "Done". A preview single frame of your experiment will come up with an approximate guess of the number of flies in the chamber. Use that to enter the number of flies you put in. You can hit recount to get another image of the chamber.
+STEP 4: A preview of how well your tracking is working will come up now that the coe knows how many flies there are. 
+STEP 5: Once satisfied. Click "Done".
+STEP 6: Flies will now be tracked continuously as fast as possible which, for medium populations, is several times per second. Then, every 20 seconds an image will come up showing the progress and a ResMat file will be saved, so that you can even access the data as it comes in. It will continue indefinitely until you stop it.
+STEP 7: There is also a "Pause" option. This will allow you to stop recording while you take the flies out and possible replace with new flies. You will be asked to recount the flies again. You will then also be given a preview of how the tracking is working. You should also change the number next to the Pause button to another number. This number will be in the 8th column of ResMat and helps for later analysis so that you can keep track of different experiments.
+

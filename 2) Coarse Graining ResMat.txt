@@ -1,0 +1,4 @@
+These are the instructions to go from the variable "ResMat", which contains the exact positions of each fly in each frame, to "occupations" which is a measurement of densities.
+
+DIVING CHAMBER INTO BINS:
+First, you need to assign each pixel in the mask of your chamber to a bin. If it is a square, simply run "
