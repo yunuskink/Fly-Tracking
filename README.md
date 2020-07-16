@@ -42,16 +42,16 @@ Mac OSX:
 Windows: Windows 10 Pro
 
 # Analyze video FBI
-	FBI refers to a method described by Ramdya to track the identities of two distinct components of flies by using fluorescent markers. I have implemented this method in combination with my other algorithms. This is still under development.
+FBI refers to a method described by Ramdya to track the identities of two distinct components of flies by using fluorescent markers. I have implemented this method in combination with my other algorithms. This is still under development.
 
 # Analyze video fitfly
-	Code within this folder uses a method I call "fitfly" to separate the individuals within a group using an input of a video of flies. A maximum fly size is established, and then the individuals are found by convolving a fitfly, which is just an average of what all the individual flies look like, across the groups. 
+Code within this folder uses a method I call "fitfly" to separate the individuals within a group using an input of a video of flies. A maximum fly size is established, and then the individuals are found by convolving a fitfly, which is just an average of what all the individual flies look like, across the groups. 
 
 # Coarse Graining Positions
-	When a video is analyzed, individual positions are extracted, but since we are interested in local densities, as described in our paper "The Density-Functional Fluctuation Theory of Crowds", we must divide up 2D environments into equal shape areas. Thus I have written code to split up an arbitrary 2D shape into approximately equal bins whose shape typically become distorted hexagons. The output of these function is a variable called "bins" which assigns each pixel with a label for a bin, thus by running "imagesc(bins)" one can see how the different bins are labelled. Also in this folder is code for taking the positions and the bins variable and retrieving the densities in each frame of the video.
+When a video is analyzed, individual positions are extracted, but since we are interested in local densities, as described in our paper "The Density-Functional Fluctuation Theory of Crowds", we must divide up 2D environments into equal shape areas. Thus I have written code to split up an arbitrary 2D shape into approximately equal bins whose shape typically become distorted hexagons. The output of these function is a variable called "bins" which assigns each pixel with a label for a bin, thus by running "imagesc(bins)" one can see how the different bins are labelled. Also in this folder is code for taking the positions and the bins variable and retrieving the densities in each frame of the video.
 
 # Realtime analysis
-	In order to quickly collect data from fly experiments, I implemented the "fitfly" tracking algorithm to work in realtime. The cost of using this analysis is that the images are not saved and the acquisition of each image must wait for the analysis of the previous image to complete. This then may bias oversampling of images that are easier to analyze, typically ones with fewer clusters, so that later downsampling is required. 
+In order to quickly collect data from fly experiments, I implemented the "fitfly" tracking algorithm to work in realtime. The cost of using this analysis is that the images are not saved and the acquisition of each image must wait for the analysis of the previous image to complete. This then may bias oversampling of images that are easier to analyze, typically ones with fewer clusters, so that later downsampling is required. 
 
 #
 
