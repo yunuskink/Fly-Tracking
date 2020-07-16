@@ -34,9 +34,7 @@ All code is written in Matlab and tested on MatLab version R2017b. Code used for
 The package has been tested on the following systems:
 
 
-Linux: 
-Mac OSX:  
-
+Linux: Ubuntu 18.04
 Windows: Windows 10 Pro
 
 # Analyze video FBI
